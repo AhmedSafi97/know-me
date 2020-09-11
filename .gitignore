@@ -25,3 +25,6 @@ yarn-error.log*
 
 # tailwind generated file
 tailwind.generated.css
+
+# firebase config 
+.firebaserc

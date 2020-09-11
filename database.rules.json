@@ -1,0 +1,33 @@
+{
+  "rules": {
+    "users": {
+      "$user_id": {
+        ".read": "$user_id === auth.uid",
+        ".write": "$user_id === auth.uid",
+        "gender": {
+          ".validate": "newData.val() === 'male' || newData.val() === 'female'"
+        },
+        "age": {
+          ".validate": "newData.isNumber() && newData.val() % 1 === 0.0 && newData.val() > 12"
+        }
+      }
+    },
+    "chats": {
+      "$chat_id": {
+        ".read": "data.hasChild(auth.uid)",
+        "last_msg": {
+          ".write": "data.parent().hasChild(auth.uid)",
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "$chat_user": {
+          ".write": "$chat_user === auth.uid",
+          "$msg": {
+            "text": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            }
+          }
+        }
+      }
+    }
+  }
+}
