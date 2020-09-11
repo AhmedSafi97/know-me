@@ -5,6 +5,9 @@ Chatting web application where you can randomly connect with others and start ch
 
 [click here to visit the app](https://know-me-chat.netlify.app/)
 
+## Prototype 
+[click here to see the app prototype](https://www.figma.com/proto/iO3Ji7jc7jjMbunV0e3fsl/Random-Chat-App?node-id=48%3A0&scaling=min-zoom)
+
 ## Installation Guide
 - clone the repo
 - install dependancies: `npm install`
