@@ -4,14 +4,22 @@ import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { selectCurrentUser } from '../features/currentUserSlice';
+import Spinner from './Spinner';
 
 const PublicRoute = ({ children, path }) => {
-  const currentUser = useSelector(selectCurrentUser);
-  return (
-    <Route path={path}>
-      {currentUser.id ? <Redirect to="/connect" /> : children}
-    </Route>
-  );
+  const { auth } = useSelector(selectCurrentUser);
+
+  let renderedComponent;
+
+  if (auth === true) {
+    renderedComponent = <Redirect to="/connect" />;
+  } else if (auth === false) {
+    renderedComponent = children;
+  } else {
+    renderedComponent = <Spinner />;
+  }
+
+  return <Route path={path}>{renderedComponent}</Route>;
 };
 PublicRoute.propTypes = {
   children: propTypes.node.isRequired,

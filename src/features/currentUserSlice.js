@@ -9,11 +9,14 @@ const currentUserSlice = createSlice({
   reducers: {
     currentUserAdded: {
       reducer: (state, action) => {
+        state.auth = true;
         state.id = action.payload.id;
       },
       prepare: (id) => ({ payload: { id } }),
     },
-    currentUserRemoved: () => {},
+    currentUserRemoved: () => ({
+      auth: false,
+    }),
   },
 });
 

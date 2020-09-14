@@ -4,13 +4,22 @@ import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { selectCurrentUser } from '../features/currentUserSlice';
+import Spinner from './Spinner';
 
 const PrivateRoute = ({ children, path }) => {
-  const currentUser = useSelector(selectCurrentUser);
+  const { auth } = useSelector(selectCurrentUser);
 
-  return (
-    <Route path={path}>{currentUser.id ? children : <Redirect to="/" />}</Route>
-  );
+  let renderedComponent;
+
+  if (auth === true) {
+    renderedComponent = children;
+  } else if (auth === false) {
+    renderedComponent = <Redirect to="/" />;
+  } else {
+    renderedComponent = <Spinner />;
+  }
+
+  return <Route path={path}>{renderedComponent}</Route>;
 };
 
 PrivateRoute.propTypes = {
