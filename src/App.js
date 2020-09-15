@@ -13,7 +13,7 @@ import {
   Contacts,
   Profile,
 } from './Pages';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
 import {
   currentUserAdded,
   currentUserRemoved,
@@ -23,9 +23,16 @@ const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
-        dispatch(currentUserAdded(user.uid));
+        const { uid, displayName, photoURL, email } = user;
+        const userProfile = await (
+          await db.ref(`/users/${uid}`).once('value')
+        ).val();
+        const isProfileComplete = userProfile !== null;
+        dispatch(
+          currentUserAdded(uid, displayName, photoURL, email, isProfileComplete)
+        );
       } else {
         dispatch(currentUserRemoved());
       }

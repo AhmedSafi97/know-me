@@ -9,10 +9,17 @@ const currentUserSlice = createSlice({
   reducers: {
     currentUserAdded: {
       reducer: (state, action) => {
+        const { id, name, photo, email, profileCompleted } = action.payload;
         state.auth = true;
-        state.id = action.payload.id;
+        state.id = id;
+        state.name = name;
+        state.photo = photo;
+        state.email = email;
+        state.profileCompleted = profileCompleted;
       },
-      prepare: (id) => ({ payload: { id } }),
+      prepare: (id, name, photo, email, profileCompleted) => ({
+        payload: { id, name, photo, email, profileCompleted },
+      }),
     },
     currentUserRemoved: () => ({
       auth: false,

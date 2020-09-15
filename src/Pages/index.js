@@ -6,3 +6,4 @@ export { default as Chats } from './Chats';
 export { default as Messages } from './Messages';
 export { default as Contacts } from './Contacts';
 export { default as Profile } from './Profile';
+export { default as CompleteProfile } from './CompleteProfile';

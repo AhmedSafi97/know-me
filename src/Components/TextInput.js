@@ -1,11 +1,11 @@
 import React from 'react';
 import propTypes from 'prop-types';
 
-const TextInput = ({ children, placeholder, value, label, onChange }) => (
+const TextInput = ({ children, placeholder, value, label, type, onChange }) => (
   <div className="relative w-full max-w-sm m-auto">
     {children}
     <input
-      type="text"
+      type={type}
       placeholder={placeholder}
       value={value}
       aria-label={label}
@@ -20,6 +20,7 @@ TextInput.propTypes = {
   placeholder: propTypes.string.isRequired,
   value: propTypes.string.isRequired,
   label: propTypes.string.isRequired,
+  type: propTypes.string.isRequired,
   onChange: propTypes.func.isRequired,
 };
 

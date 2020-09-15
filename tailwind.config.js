@@ -5,6 +5,11 @@ const {
 module.exports = {
   purge: ['./src/**/*.html', './src/**/*.js'],
   theme: {
+    inset: {
+      0: 0,
+      auto: 'auto',
+      icon: '21px',
+    },
     colors: {
       black,
       white,

@@ -5,14 +5,15 @@ import { useSelector } from 'react-redux';
 
 import { selectCurrentUser } from '../features/currentUserSlice';
 import Spinner from './Spinner';
+import { CompleteProfile } from '../Pages';
 
 const PrivateRoute = ({ children, path }) => {
-  const { auth } = useSelector(selectCurrentUser);
+  const { auth, profileCompleted } = useSelector(selectCurrentUser);
 
   let renderedComponent;
 
   if (auth === true) {
-    renderedComponent = children;
+    renderedComponent = profileCompleted ? children : <CompleteProfile />;
   } else if (auth === false) {
     renderedComponent = <Redirect to="/" />;
   } else {
