@@ -8,3 +8,4 @@ export { default as NavBar } from './NavBar';
 export { default as WaitingConnect } from './WaitingConnect';
 export { default as Exist } from './Exit';
 export { default as Contact } from './Contact';
+export { default as WaitingToConnect } from './WaitingToConnect';
