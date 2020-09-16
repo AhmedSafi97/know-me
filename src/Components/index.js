@@ -9,3 +9,4 @@ export { default as WaitingConnect } from './WaitingConnect';
 export { default as Exist } from './Exit';
 export { default as Contact } from './Contact';
 export { default as WaitingToConnect } from './WaitingToConnect';
+export { default as AddUser } from './AddUser';
