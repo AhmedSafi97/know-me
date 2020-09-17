@@ -10,3 +10,4 @@ export { default as Exist } from './Exit';
 export { default as Contact } from './Contact';
 export { default as WaitingToConnect } from './WaitingToConnect';
 export { default as AddUser } from './AddUser';
+export { default as Message } from './Message';
