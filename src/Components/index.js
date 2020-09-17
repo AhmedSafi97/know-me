@@ -12,3 +12,4 @@ export { default as WaitingToConnect } from './WaitingToConnect';
 export { default as AddUser } from './AddUser';
 export { default as Message } from './Message';
 export { default as SendMessage } from './SendMessage';
+export { default as LastMessage } from './LastMessage';
