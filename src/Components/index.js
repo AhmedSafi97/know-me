@@ -11,3 +11,4 @@ export { default as Contact } from './Contact';
 export { default as WaitingToConnect } from './WaitingToConnect';
 export { default as AddUser } from './AddUser';
 export { default as Message } from './Message';
+export { default as SendMessage } from './SendMessage';
