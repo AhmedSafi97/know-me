@@ -9,6 +9,7 @@ module.exports = {
       0: 0,
       auto: 'auto',
       icon: '21px',
+      'half-screen': 'calc((100vh - 12rem) / 2)',
     },
     colors: {
       black,

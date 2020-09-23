@@ -9,6 +9,7 @@ import config from './config';
 export const firebase = app.initializeApp(config);
 
 export const googleProvider = new app.auth.GoogleAuthProvider();
+export const emailProvider = app.auth.EmailAuthProvider;
 
 export const auth = firebase.auth();
 export const db = firebase.database();
