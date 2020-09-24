@@ -15,11 +15,12 @@ Chatting web application where you can randomly connect with others and start ch
    1. Create a new Firebase project in the [Firebase console.](https://console.firebase.google.com/).
    2. In the console under Authentiction, enable sign-ins with email/password and Google auth.
    3. In the console, create a realtime database.
-   4. In your terminal,  install firbase CLI to deploy cloud function and database rules: `npm install -g firebase-tools` 
+   4. In the console, enable firebase storage.
+   5. In your terminal,  install firbase CLI to deploy cloud function and database rules: `npm install -g firebase-tools` 
       - Log into Firebase using your Google account: `firebase login`
-      - Run `firebase init` to initialize the project space. Be sure to select each option (Database, Functions) when prompted, then select the project you just created in the console. Take all the subsequent defaults when prompted. Don't forget to answer with yes when asked: ` Do you want to install dependencies with npm now?` 
+      - Run `firebase init` to initialize the project space. Be sure to select each option (Database, Functions, Storage) when prompted, then select the project you just created in the console. Take all the subsequent defaults when prompted. Don't forget to answer with yes when asked: ` Do you want to install dependencies with npm now?` 
       - Run `firebase deploy` to deploy the web content, Cloud Functions, and database security rules.
-   5. Create a .env file in the project root folder and add the following.
+   6. Create a .env file in the project root folder and add the following.
       - `SKIP_PREFLIGHT_CHECK=true`
       - these are your Firebase project config, you can get them from your Firebase project settigns
         ```js
@@ -32,7 +33,7 @@ Chatting web application where you can randomly connect with others and start ch
         REACT_APP_APP_ID=appId
         REACT_APP_MEASUREMENT_ID=measurementId
         ```
-   6. You can now run the application: `npm start`     
+   7. You can now run the application: `npm start`     
       
 ## User Stories
 
