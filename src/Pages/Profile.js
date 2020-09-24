@@ -6,7 +6,7 @@ import {
   selectCurrentUser,
   currentUserAdded,
 } from '../features/currentUserSlice';
-import { NavBar, Spinner, Button, TextInput } from '../Components';
+import { NavBar, Spinner, Button, TextInput, Popup } from '../Components';
 import { ReactComponent as Camera } from '../assets/camera.svg';
 import { ReactComponent as Email } from '../assets/email-dark.svg';
 import { ReactComponent as Edit } from '../assets/edit.svg';
@@ -198,47 +198,38 @@ const Profile = () => {
                   <Edit />
                 </button>
                 {editEmail && (
-                  <div className="fixed w-full top-0 bottom-0 left-0 right-0 m-auto px-4 grid items-center justify-center">
-                    <div className="m-auto p-4 bg-white border-primary-dark border-2">
-                      <button
-                        type="button"
-                        className="w-6 h-6 p-1 mb-4 focus:outline-none hover:bg-primary-lighter"
-                        onClick={() => setEditEmail(false)}
-                      >
-                        cancel
-                      </button>
-                      <div className="px-4">
-                        <div className="h-32 grid content-between mt-12 mb-8">
-                          <TextInput
-                            placeholder="New Email"
-                            label="email"
-                            type="text"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                          >
-                            <Email className="absolute left-icon top-icon" />
-                          </TextInput>
-                          <TextInput
-                            placeholder="Password"
-                            label="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                          >
-                            <Password className="absolute left-icon top-icon" />
-                          </TextInput>
-                        </div>
-                        <Button onClick={handleChangeEmail}>
-                          <span>Submit</span>
-                        </Button>
-                        {editError && (
-                          <p className="text-red-700 my-2 text-center">
-                            {editError}
-                          </p>
-                        )}
+                  <Popup onClick={() => setEditEmail(false)}>
+                    <div className="px-4">
+                      <div className="h-32 grid content-between mt-12 mb-8">
+                        <TextInput
+                          placeholder="New Email"
+                          label="email"
+                          type="text"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                        >
+                          <Email className="absolute left-icon top-icon" />
+                        </TextInput>
+                        <TextInput
+                          placeholder="Password"
+                          label="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        >
+                          <Password className="absolute left-icon top-icon" />
+                        </TextInput>
                       </div>
+                      <Button onClick={handleChangeEmail}>
+                        <span>Submit</span>
+                      </Button>
+                      {editError && (
+                        <p className="text-red-700 my-2 text-center">
+                          {editError}
+                        </p>
+                      )}
                     </div>
-                  </div>
+                  </Popup>
                 )}
               </div>
               <div className="flex items-center mb-8">
@@ -253,47 +244,38 @@ const Profile = () => {
                   <Edit />
                 </button>
                 {editPassword && (
-                  <div className="fixed w-full top-0 bottom-0 left-0 right-0 m-auto px-4 grid items-center justify-center">
-                    <div className="m-auto p-4 bg-white border-primary-dark border-2">
-                      <button
-                        type="button"
-                        className="w-6 h-6 p-1 mb-4 focus:outline-none hover:bg-primary-lighter"
-                        onClick={() => setEditPassword(false)}
-                      >
-                        cancel
-                      </button>
-                      <div className="px-4">
-                        <div className="h-32 grid content-between mt-12 mb-8">
-                          <TextInput
-                            placeholder="Password"
-                            label="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                          >
-                            <Password className="absolute left-icon top-icon" />
-                          </TextInput>
-                          <TextInput
-                            placeholder="New Password"
-                            label="new password"
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                          >
-                            <Password className="absolute left-icon top-icon" />
-                          </TextInput>
-                        </div>
-                        <Button onClick={handleChangePassword}>
-                          <span>Submit</span>
-                        </Button>
-                        {editError && (
-                          <p className="text-red-700 my-2 text-center">
-                            {editError}
-                          </p>
-                        )}
+                  <Popup onClick={() => setEditPassword(false)}>
+                    <div className="px-4">
+                      <div className="h-32 grid content-between mt-12 mb-8">
+                        <TextInput
+                          placeholder="Password"
+                          label="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        >
+                          <Password className="absolute left-icon top-icon" />
+                        </TextInput>
+                        <TextInput
+                          placeholder="New Password"
+                          label="new password"
+                          type="password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        >
+                          <Password className="absolute left-icon top-icon" />
+                        </TextInput>
                       </div>
+                      <Button onClick={handleChangePassword}>
+                        <span>Submit</span>
+                      </Button>
+                      {editError && (
+                        <p className="text-red-700 my-2 text-center">
+                          {editError}
+                        </p>
+                      )}
                     </div>
-                  </div>
+                  </Popup>
                 )}
               </div>
             </>

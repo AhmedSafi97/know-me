@@ -5,6 +5,11 @@ const {
 module.exports = {
   purge: ['./src/**/*.html', './src/**/*.js'],
   theme: {
+    flexGrow: {
+      0: 0,
+      default: 1,
+      2: 2,
+    },
     inset: {
       0: 0,
       auto: 'auto',

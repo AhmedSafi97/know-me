@@ -54,11 +54,11 @@ const App = () => {
         <PrivateRoute path="/connect">
           <Connect />
         </PrivateRoute>
-        <PrivateRoute path="/chats">
-          <Chats />
-        </PrivateRoute>
         <PrivateRoute path="/chats/contacts">
           <Contacts />
+        </PrivateRoute>
+        <PrivateRoute path="/chats">
+          <Chats />
         </PrivateRoute>
         <PrivateRoute path="/chats/:id">
           <Messages />
