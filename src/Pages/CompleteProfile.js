@@ -38,7 +38,9 @@ const CompleteProfile = () => {
     if (e.target.files) {
       const photoObj = e.target.files[0];
       const photoAddress = currentUser.id;
-      const uploadTask = storage.ref(`photos/${photoAddress}`).put(photoObj);
+      const uploadTask = storage
+        .ref(`photos/${photoAddress}/${photoObj.name}`)
+        .put(photoObj);
       if (photoObj.size > 1000000) {
         setError('Image size is too large');
       } else if (
@@ -60,6 +62,7 @@ const CompleteProfile = () => {
             storage
               .ref('photos')
               .child(photoAddress)
+              .child(photoObj.name)
               .getDownloadURL()
               .then((url) => {
                 setPhoto(url);

@@ -22,7 +22,8 @@ const dateDiff = (date) => {
 const Profile = () => {
   const { id, name, photo, email } = useSelector(selectCurrentUser);
 
-  const [showEdit, setShowEdit] = useState(false);
+  const [editEmail, setEditEmail] = useState(false);
+  const [editPassword, setEditPassword] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,11 +36,14 @@ const Profile = () => {
   const handleNewPhoto = async (e) => {
     if (e.target.files) {
       const photoObj = e.target.files[0];
+      const imageSrc = await storage.ref().child('photos').child(id);
 
       let lastUpdate;
 
       try {
-        const { updated } = await storage.ref(`photos/${id}`).getMetadata();
+        const oldImage = await imageSrc.list();
+        const oldImageRef = await storage.ref(oldImage.items[0].location.path);
+        const { updated } = await oldImageRef.getMetadata();
         lastUpdate = dateDiff(updated);
       } catch (err) {
         lastUpdate = 6;
@@ -56,42 +60,44 @@ const Profile = () => {
         setError('Invalid image type');
       } else {
         setUploading(true);
-        const photoRef = storage.ref(`photos/${id}`);
 
         try {
-          await photoRef.delete();
-          const uploadTask = photoRef.put(photoObj);
-          uploadTask.on(
-            'state_changed',
-            null,
-            () => {
+          const oldImage = await imageSrc.list();
+          const oldImageRef = await storage.ref(
+            oldImage.items[0].location.path
+          );
+          await oldImageRef.delete();
+        } catch (err) {
+          console.log('');
+        }
+
+        const uploadTask = imageSrc.child(photoObj.name).put(photoObj);
+        uploadTask.on(
+          'state_changed',
+          null,
+          () => {
+            setError('Something went wrong, please try again later');
+            setUploading(false);
+          },
+          async () => {
+            try {
+              const photoUrl = await imageSrc
+                .child(photoObj.name)
+                .getDownloadURL();
+
+              auth.currentUser.updateProfile({
+                displayName: name,
+                photoURL: photoUrl,
+              });
+
+              setUploading(false);
+              dispatch(currentUserAdded(id, name, photoUrl, email, true));
+            } catch (err) {
               setError('Something went wrong, please try again later');
               setUploading(false);
-            },
-            async () => {
-              try {
-                const photoUrl = await storage
-                  .ref('photos')
-                  .child(id)
-                  .getDownloadURL();
-
-                auth.currentUser.updateProfile({
-                  displayName: name,
-                  photoURL: photoUrl,
-                });
-
-                setUploading(false);
-                dispatch(currentUserAdded(id, name, photoUrl, email, true));
-              } catch (err) {
-                setError('Something went wrong, please try again later');
-                setUploading(false);
-              }
             }
-          );
-        } catch (err) {
-          setError('Something went wrong, please try again later');
-          setUploading(false);
-        }
+          }
+        );
       }
     }
   };
@@ -109,7 +115,7 @@ const Profile = () => {
       } else {
         await user.updateEmail(newEmail);
         setEditError('');
-        setShowEdit(false);
+        setEditEmail(false);
         dispatch(currentUserAdded(id, name, photo, newEmail, true));
         setNewEmail('');
         setPassword('');
@@ -132,7 +138,7 @@ const Profile = () => {
       } else {
         await user.updatePassword(newPassword);
         setEditError('');
-        setShowEdit(false);
+        setEditPassword(false);
         setPassword('');
         setNewPassword('');
       }
@@ -187,17 +193,17 @@ const Profile = () => {
                   type="button"
                   aria-label="change email"
                   className="self-end"
-                  onClick={() => setShowEdit(true)}
+                  onClick={() => setEditEmail(true)}
                 >
                   <Edit />
                 </button>
-                {showEdit && (
-                  <div className="fixed w-full top-0 bottom-0 left-0 right-0 m-auto grid items-center justify-center">
-                    <div className="w-4/5 md:w-3/5 m-auto p-4 md:p-8 bg-white border-primary-dark border-2">
+                {editEmail && (
+                  <div className="fixed w-full top-0 bottom-0 left-0 right-0 m-auto px-4 grid items-center justify-center">
+                    <div className="m-auto p-4 bg-white border-primary-dark border-2">
                       <button
                         type="button"
                         className="w-6 h-6 p-1 mb-4 focus:outline-none hover:bg-primary-lighter"
-                        onClick={() => setShowEdit(false)}
+                        onClick={() => setEditEmail(false)}
                       >
                         cancel
                       </button>
@@ -242,17 +248,17 @@ const Profile = () => {
                   type="button"
                   aria-label="change email"
                   className="self-end"
-                  onClick={() => setShowEdit(true)}
+                  onClick={() => setEditPassword(true)}
                 >
                   <Edit />
                 </button>
-                {showEdit && (
-                  <div className="fixed w-full top-0 bottom-0 left-0 right-0 m-auto grid items-center justify-center">
-                    <div className="w-4/5 md:w-3/5 m-auto p-4 md:p-8 bg-white border-primary-dark border-2">
+                {editPassword && (
+                  <div className="fixed w-full top-0 bottom-0 left-0 right-0 m-auto px-4 grid items-center justify-center">
+                    <div className="m-auto p-4 bg-white border-primary-dark border-2">
                       <button
                         type="button"
                         className="w-6 h-6 p-1 mb-4 focus:outline-none hover:bg-primary-lighter"
-                        onClick={() => setShowEdit(false)}
+                        onClick={() => setEditPassword(false)}
                       >
                         cancel
                       </button>
