@@ -39,9 +39,28 @@ exports.sendFriendRequest = functions.https.onCall(async (data, context) => {
       const receiverId = data.id;
       await admin
         .database()
-        .ref(`users/${receiverId}/friendship_requests`)
-        .set({ [senderId]: true });
+        .ref(`users/${receiverId}/request_received`)
+        .update({ [senderId]: true });
       return {};
+    } catch (err) {
+      return { error: 'Something went wrong' };
+    }
+  }
+});
+
+exports.fetchContactDetails = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called while authenticated.'
+    );
+  } else {
+    try {
+      const { contactId } = data;
+      const contactRecord = await admin.auth().getUser(contactId);
+      const { displayName, photoURL } = contactRecord.toJSON();
+
+      return { displayName, photoURL };
     } catch (err) {
       return { error: 'Something went wrong' };
     }

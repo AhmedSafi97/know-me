@@ -57,11 +57,11 @@ const App = () => {
         <PrivateRoute path="/chats/contacts">
           <Contacts />
         </PrivateRoute>
-        <PrivateRoute path="/chats">
-          <Chats />
-        </PrivateRoute>
         <PrivateRoute path="/chats/:id">
           <Messages />
+        </PrivateRoute>
+        <PrivateRoute path="/chats">
+          <Chats />
         </PrivateRoute>
         <PrivateRoute path="/profile">
           <Profile />
