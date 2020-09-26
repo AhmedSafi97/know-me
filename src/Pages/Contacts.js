@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import propTypes from 'prop-types';
 
 import { functions, db, auth } from '../firebase';
-import {
-  fetchContacts,
-  selectContactById,
-  selectContactsIds,
-} from '../features/contactsSlice';
+
 import {
   NavBar,
   Exist,
@@ -17,49 +11,22 @@ import {
   Button,
   Spinner,
   AddUser,
-  Contact,
+  ContactsList,
+  RequestsList,
 } from '../Components';
 import { ReactComponent as NewUser } from '../assets/new-user.svg';
 import { ReactComponent as Email } from '../assets/email-dark.svg';
-
-const ContactExcerpt = ({ contactId }) => {
-  const history = useHistory();
-  const { displayName, photoURL, chatId } = useSelector((state) =>
-    selectContactById(state, contactId)
-  );
-
-  return (
-    <button
-      type="button"
-      key={contactId}
-      className="mt-4 flex items-center"
-      onClick={() => history.push(`/chats/${chatId}`)}
-    >
-      <Contact image={photoURL} />
-      <p className="ml-2">{displayName}</p>
-    </button>
-  );
-};
+import { ReactComponent as FriendshipRequests } from '../assets/requests.svg';
 
 const Contacts = () => {
   const history = useHistory();
 
+  const [friendshipRequests, setFriendshipRequests] = useState(false);
   const [newUser, setNewUser] = useState(false);
   const [email, setEmail] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResult, setSearchResult] = useState({});
   const [error, setError] = useState('');
-
-  const dispatch = useDispatch();
-  const contactsIds = useSelector(selectContactsIds);
-  const contactsStatus = useSelector((state) => state.contacts.status);
-  const contactsError = useSelector((state) => state.contacts.error);
-
-  useEffect(() => {
-    if (contactsStatus === 'idle') {
-      dispatch(fetchContacts());
-    }
-  }, [dispatch, contactsStatus]);
 
   const handleSearch = async () => {
     setSearchLoading(true);
@@ -82,11 +49,11 @@ const Contacts = () => {
           .once('value')
           .then((snapshot) => snapshot.val());
         const requestSent = await db
-          .ref(`users/${auth.currentUser.uid}/requests_sent/${uid}`)
+          .ref(`users/${auth.currentUser.uid}/sent_requests/${uid}`)
           .once('value')
           .then((snapshot) => snapshot.val());
         const requestReceived = await db
-          .ref(`users/${auth.currentUser.uid}/requests_received/${uid}`)
+          .ref(`users/${auth.currentUser.uid}/received_requests/${uid}`)
           .once('value')
           .then((snapshot) => snapshot.val());
 
@@ -110,7 +77,7 @@ const Contacts = () => {
 
   const handleAddingNewContact = async (contactId) => {
     try {
-      await db.ref(`users/${auth.currentUser.uid}/requests_sent`).update({
+      await db.ref(`users/${auth.currentUser.uid}/sent_requests`).update({
         [contactId]: true,
       });
 
@@ -124,7 +91,6 @@ const Contacts = () => {
 
   let ContactAction = <></>;
   let SearchResult = <></>;
-  let contacts;
 
   if (searchResult) {
     // decide what action to take against the contact from the search result
@@ -151,16 +117,6 @@ const Contacts = () => {
           {ContactAction}
         </div>
       );
-  }
-
-  if (contactsStatus === 'loading') {
-    contacts = <Spinner centered={false} />;
-  } else if (contactsStatus === 'succeeded') {
-    contacts = contactsIds.map((contactId) => (
-      <ContactExcerpt key={contactId} contactId={contactId} />
-    ));
-  } else if (contactsStatus === 'failed') {
-    contacts = <div className="text-red-600 mt-2">{contactsError}</div>;
   }
 
   return (
@@ -206,15 +162,24 @@ const Contacts = () => {
             </Popup>
           )}
         </div>
-        <div>{contacts}</div>
+        <div className="mt-4">
+          <button type="button" onClick={() => setFriendshipRequests(true)}>
+            <FriendshipRequests className="inline mr-2" />
+            Friendship Requests
+          </button>
+          {friendshipRequests && (
+            <Popup onClick={() => setFriendshipRequests(false)}>
+              <div>
+                <RequestsList />
+              </div>
+            </Popup>
+          )}
+        </div>
+        <ContactsList />
       </div>
       <NavBar />
     </div>
   );
-};
-
-ContactExcerpt.propTypes = {
-  contactId: propTypes.string.isRequired,
 };
 
 export default Contacts;

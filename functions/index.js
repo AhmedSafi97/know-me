@@ -39,7 +39,7 @@ exports.sendFriendRequest = functions.https.onCall(async (data, context) => {
       const receiverId = data.id;
       await admin
         .database()
-        .ref(`users/${receiverId}/request_received`)
+        .ref(`users/${receiverId}/received_requests`)
         .update({ [senderId]: true });
       return {};
     } catch (err) {
@@ -66,3 +66,44 @@ exports.fetchContactDetails = functions.https.onCall(async (data, context) => {
     }
   }
 });
+
+exports.acceptFriendshipRequest = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'The function must be called while authenticated.'
+      );
+    } else {
+      try {
+        const receiverId = context.auth.uid;
+        const senderId = data.id;
+
+        const receiverRef = admin.database().ref(`users/${receiverId}`);
+        const senderRef = admin.database().ref(`users/${senderId}`);
+
+        await receiverRef.child('received_requests').child(senderId).remove();
+        await senderRef.child('sent_requests').child(receiverId).remove();
+
+        const chatRef = await admin.database().ref(`chats`).push();
+        const chatId = chatRef.key;
+
+        await receiverRef.child('contacts').update({ [senderId]: chatId });
+        await senderRef.child('contacts').update({ [receiverId]: chatId });
+
+        await chatRef.set({
+          [senderId]: true,
+          [receiverId]: true,
+          last_msg: {
+            text: '',
+            timestamp: Date.now(),
+          },
+        });
+
+        return {};
+      } catch (err) {
+        return { error: 'Something went wrong' };
+      }
+    }
+  }
+);

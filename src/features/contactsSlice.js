@@ -15,15 +15,18 @@ const initialState = contactsAdapter.getInitialState({
 });
 
 export const fetchContacts = createAsyncThunk('fetch/contacts', async () => {
-  const contacts = await retrieveContactsInfo();
+  const contacts = await retrieveContactsInfo().catch(console.log);
 
   return contacts.filter((contact) => contact !== null);
 });
 
-const contactSlice = createSlice({
+const contactsSlice = createSlice({
   name: 'contacts',
   initialState,
-  reducers: {},
+  reducers: {
+    contactAdded: contactsAdapter.addOne,
+    contactRemoved: contactsAdapter.removeOne,
+  },
   extraReducers: {
     [fetchContacts.pending]: (state) => {
       state.status = 'loading';
@@ -32,7 +35,8 @@ const contactSlice = createSlice({
       state.status = 'succeeded';
       contactsAdapter.setAll(state, action.payload);
     },
-    [fetchContacts.rejected]: (state) => {
+    [fetchContacts.rejected]: (state, v) => {
+      console.log(v);
       state.status = 'failed';
       state.error = 'Something went wrong, unable to retrieve your contacts.';
     },
@@ -44,4 +48,6 @@ export const {
   selectIds: selectContactsIds,
 } = contactsAdapter.getSelectors((state) => state.contacts);
 
-export default contactSlice.reducer;
+export const { contactRemoved, contactAdded } = contactsSlice.actions;
+
+export default contactsSlice.reducer;
