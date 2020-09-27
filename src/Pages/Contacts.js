@@ -25,7 +25,7 @@ const Contacts = () => {
   const [newUser, setNewUser] = useState(false);
   const [email, setEmail] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
-  const [searchResult, setSearchResult] = useState({});
+  const [searchResult, setSearchResult] = useState();
   const [error, setError] = useState('');
 
   const handleSearch = async () => {
@@ -87,6 +87,10 @@ const Contacts = () => {
     } catch (err) {
       setError('Something went wrong');
     }
+    setSearchResult((state) => ({
+      ...state,
+      isNew: false,
+    }));
   };
 
   let ContactAction = <></>;
@@ -135,7 +139,7 @@ const Contacts = () => {
             <Popup
               onClick={() => {
                 setNewUser(false);
-                setSearchResult({});
+                setSearchResult();
                 setEmail('');
                 setError('');
               }}
