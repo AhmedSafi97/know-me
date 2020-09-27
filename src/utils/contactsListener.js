@@ -1,8 +1,9 @@
 import { auth, db, functions } from '../firebase';
 import { contactAdded, contactRemoved } from '../features/contactsSlice';
+import store from '../store';
 
 // Listen for new contacts added
-const addingListener = (cb, ids) =>
+const contactsAddedListener = (cb, ids) =>
   db
     .ref(`users/${auth.currentUser.uid}/contacts`)
     .on('child_added', async (snapshot) => {
@@ -22,19 +23,12 @@ const addingListener = (cb, ids) =>
 
           if (error) throw new Error(error);
 
-          const { text, timestamp } = await db
-            .ref(`chats/${chatId}/last_msg`)
-            .once('value')
-            .then((lastMsgSnapshot) => lastMsgSnapshot.val());
-
           cb(
             contactAdded({
               id: contactId,
               chatId,
               displayName,
               photoURL,
-              text,
-              timestamp,
             })
           );
         } catch (err) {
@@ -46,15 +40,22 @@ const addingListener = (cb, ids) =>
 
 // listen for removed contacts
 // in case of adding the feature of deleting contacts
-const removingListener = (cb) =>
+const contactsRemovedListener = (cb) =>
   db
     .ref(`users/${auth.currentUser.uid}/contacts`)
     .on('child_removed', (snapshot) => cb(contactRemoved(snapshot.key)));
 
 // this will turn on all listeners for contacts (adding or removing)
-const contactsListener = (cb, ids) => {
-  addingListener(cb, ids);
-  removingListener(cb);
+const contactsListener = (cb) => {
+  /* this function will be triggered after all contacts have been fetched successfully
+  so, contacts indeed will be available in the redux store */
+  /* we are reaching the store here instead of passing the state we need as an argument
+  since this function will be executed in the useEffect and will have this argument
+  as a dependency and will trigger a re-render. */
+  const state = store.getState();
+  const { ids } = state.contacts;
+  contactsAddedListener(cb, ids);
+  contactsRemovedListener(cb);
 };
 
 export default contactsListener;

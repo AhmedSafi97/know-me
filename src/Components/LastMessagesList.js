@@ -7,29 +7,43 @@ import {
   selectContactById,
   selectContactsIds,
 } from '../features/contactsSlice';
+import { selectLastMessageById } from '../features/lastMessagesSlice';
 import Spinner from './Spinner';
 import Contact from './Contact';
+import LastMessage from './LastMessage';
 
-const ContactExcerpt = ({ contactId }) => {
+const LastMessageExcerpt = ({ contactId }) => {
   const history = useHistory();
   const { displayName, photoURL, chatId } = useSelector((state) =>
     selectContactById(state, contactId)
   );
-
-  return (
-    <button
-      type="button"
-      key={contactId}
-      className="mt-4 flex items-center"
-      onClick={() => history.push(`/chats/${chatId}`)}
-    >
-      <Contact image={photoURL} />
-      <p className="ml-2">{displayName}</p>
-    </button>
+  const { text, timestamp } = useSelector((state) =>
+    selectLastMessageById(state, chatId)
   );
+
+  if (text) {
+    return (
+      <button
+        type="button"
+        key={contactId}
+        className="mt-4 flex items-center"
+        onClick={() => history.push(`/chats/${chatId}`)}
+      >
+        <Contact image={photoURL} />
+        <LastMessage
+          contact={displayName}
+          message={text}
+          timestamp={timestamp}
+          seen={false}
+        />
+      </button>
+    );
+  }
+
+  return null;
 };
 
-const ContactsList = () => {
+const LastMessagesList = () => {
   const contactsIds = useSelector(selectContactsIds);
   const contactsStatus = useSelector((state) => state.contacts.status);
   const contactsError = useSelector((state) => state.contacts.error);
@@ -40,7 +54,7 @@ const ContactsList = () => {
     contacts = <Spinner centered={false} />;
   } else if (contactsStatus === 'succeeded') {
     contacts = contactsIds.map((contactId) => (
-      <ContactExcerpt key={contactId} contactId={contactId} />
+      <LastMessageExcerpt key={contactId} contactId={contactId} />
     ));
   } else if (contactsStatus === 'failed') {
     contacts = <div className="text-red-600 mt-2">{contactsError}</div>;
@@ -49,8 +63,8 @@ const ContactsList = () => {
   return <div>{contacts}</div>;
 };
 
-ContactExcerpt.propTypes = {
+LastMessageExcerpt.propTypes = {
   contactId: propTypes.string.isRequired,
 };
 
-export default ContactsList;
+export default LastMessagesList;

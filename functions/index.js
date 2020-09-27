@@ -100,6 +100,9 @@ exports.acceptFriendshipRequest = functions.https.onCall(
           },
         });
 
+        await receiverRef.child('chats').update({ [chatId]: senderId });
+        await senderRef.child('chats').update({ [chatId]: receiverId });
+
         return {};
       } catch (err) {
         return { error: 'Something went wrong' };

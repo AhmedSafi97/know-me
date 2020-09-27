@@ -17,20 +17,14 @@ const retrieveContactsInfo = async () => {
             contactId,
           });
           const { displayName, photoURL, error } = data;
-          if (error) throw new Error(error);
 
-          const { text, timestamp } = await db
-            .ref(`chats/${chatId}/last_msg`)
-            .once('value')
-            .then((snapshot) => snapshot.val());
+          if (error) throw new Error(error);
 
           return {
             id: contactId,
             chatId,
             displayName,
             photoURL,
-            text,
-            timestamp,
           };
         } catch (err) {
           return null;

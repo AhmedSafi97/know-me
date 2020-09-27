@@ -16,3 +16,4 @@ export { default as LastMessage } from './LastMessage';
 export { default as Popup } from './Popup';
 export { default as ContactsList } from './ContactsList';
 export { default as RequestsList } from './RequestsList';
+export { default as LastMessagesList } from './LastMessagesList';

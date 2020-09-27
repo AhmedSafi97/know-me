@@ -8,9 +8,9 @@ const getDate = (timeStamp) =>
   });
 
 const LastMessage = ({ contact, message, timestamp, seen }) => (
-  <div>
-    <p className="text-gray-dark font-bold">{contact}</p>
-    <p className="flex">
+  <div className="ml-4">
+    <p className="text-gray-dark font-bold text-left">{contact}</p>
+    <p className="flex text-left">
       <span
         className={`${
           seen ? 'text-gray-medium' : 'text-gray-dark font-medium'

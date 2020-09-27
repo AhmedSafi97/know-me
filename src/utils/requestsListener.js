@@ -1,8 +1,9 @@
 import { auth, db, functions } from '../firebase';
 import { requestReceived, requestRemoved } from '../features/requestsSlice';
+import store from '../store';
 
 // Listen for new coming requests
-const addingListener = (cb, ids) =>
+const requestsAddedListener = (cb, ids) =>
   db
     .ref(`users/${auth.currentUser.uid}/received_requests`)
     .on('child_added', async (snapshot) => {
@@ -36,15 +37,17 @@ const addingListener = (cb, ids) =>
 
 // listen for requests removed
 // after accepting friendship request from the other party the request will be removed
-const removingListener = (cb) =>
+const requestsRemovedListener = (cb) =>
   db
     .ref(`users/${auth.currentUser.uid}/received_requests`)
     .on('child_removed', (snapshot) => cb(requestRemoved(snapshot.key)));
 
 // this will turn all listeners for requests (adding or removing)
-const requestsListener = (cb, ids) => {
-  addingListener(cb, ids);
-  removingListener(cb);
+const requestsListener = (cb) => {
+  const state = store.getState();
+  const { ids } = state.requests;
+  requestsAddedListener(cb, ids);
+  requestsRemovedListener(cb);
 };
 
 export default requestsListener;
