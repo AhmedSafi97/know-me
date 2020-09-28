@@ -5,7 +5,7 @@ import {
   createEntityAdapter,
 } from '@reduxjs/toolkit';
 
-import { retrieveLastMessages } from '../utils';
+import retrieveLastMessages from './retrieveLastMessages';
 
 const lastMessagesAdapter = createEntityAdapter();
 
@@ -26,7 +26,10 @@ export const fetchLastMessages = createAsyncThunk(
 const lastMessagesSlice = createSlice({
   name: 'lastMessages',
   initialState,
-  reducers: {},
+  reducers: {
+    lastMessageUpdated: lastMessagesAdapter.updateOne,
+    lastMessageAdded: lastMessagesAdapter.addOne,
+  },
   extraReducers: {
     [fetchLastMessages.pending]: (state) => {
       state.status = 'loading';
@@ -41,6 +44,11 @@ const lastMessagesSlice = createSlice({
     },
   },
 });
+
+export const {
+  lastMessageUpdated,
+  lastMessageAdded,
+} = lastMessagesSlice.actions;
 
 export const {
   selectById: selectLastMessageById,

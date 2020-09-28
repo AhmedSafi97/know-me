@@ -4,8 +4,8 @@ import { Route, Redirect } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { selectCurrentUser } from '../features/currentUserSlice';
-import { fetchContacts } from '../features/contactsSlice';
-import { fetchRequests } from '../features/requestsSlice';
+import { fetchContacts, selectContactsIds } from '../features/contactsSlice';
+import { fetchRequests, selectRequestsIds } from '../features/requestsSlice';
 import { fetchLastMessages } from '../features/lastMessagesSlice';
 import { contactsListener, requestsListener } from '../utils';
 import Spinner from './Spinner';
@@ -16,7 +16,11 @@ const PrivateRoute = ({ children, path }) => {
 
   const { auth, profileCompleted } = useSelector(selectCurrentUser);
   const contactsStatus = useSelector((state) => state.contacts.status);
+  const contactsIds = useSelector(selectContactsIds);
+
   const requestsStatus = useSelector((state) => state.requests.status);
+  const requestsIds = useSelector(selectRequestsIds);
+
   const lastMessagesStatus = useSelector((state) => state.lastMessages.status);
 
   useEffect(() => {
@@ -24,20 +28,20 @@ const PrivateRoute = ({ children, path }) => {
       if (contactsStatus === 'idle') {
         dispatch(fetchContacts());
       } else if (contactsStatus === 'succeeded') {
-        contactsListener(dispatch);
+        contactsListener.listen(dispatch, contactsIds);
       }
     }
-  }, [auth, dispatch, contactsStatus]);
+  }, [auth, dispatch, contactsStatus, contactsIds]);
 
   useEffect(() => {
     if (auth === true) {
       if (requestsStatus === 'idle') {
         dispatch(fetchRequests());
       } else if (requestsStatus === 'succeeded') {
-        requestsListener(dispatch);
+        requestsListener.listen(dispatch, requestsIds);
       }
     }
-  }, [auth, dispatch, requestsStatus]);
+  }, [auth, dispatch, requestsStatus, requestsIds]);
 
   useEffect(() => {
     if (auth === true) {

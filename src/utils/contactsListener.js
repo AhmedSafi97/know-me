@@ -1,6 +1,6 @@
 import { auth, db, functions } from '../firebase';
 import { contactAdded, contactRemoved } from '../features/contactsSlice';
-import store from '../store';
+import { lastMessageAdded } from '../features/lastMessagesSlice';
 
 // Listen for new contacts added
 const contactsAddedListener = (cb, ids) =>
@@ -31,6 +31,19 @@ const contactsAddedListener = (cb, ids) =>
               photoURL,
             })
           );
+
+          const { text, timestamp } = await db
+            .ref(`chats/${chatId}/last_msg/msg`)
+            .once('value')
+            .then((chatSnapshot) => chatSnapshot.val());
+
+          cb(
+            lastMessageAdded({
+              id: chatId,
+              text,
+              timestamp,
+            })
+          );
         } catch (err) {
           // skipping errors for the mean time
           console.log('');
@@ -46,16 +59,24 @@ const contactsRemovedListener = (cb) =>
     .on('child_removed', (snapshot) => cb(contactRemoved(snapshot.key)));
 
 // this will turn on all listeners for contacts (adding or removing)
-const contactsListener = (cb) => {
-  /* this function will be triggered after all contacts have been fetched successfully
-  so, contacts indeed will be available in the redux store */
-  /* we are reaching the store here instead of passing the state we need as an argument
-  since this function will be executed in the useEffect and will have this argument
-  as a dependency and will trigger a re-render. */
-  const state = store.getState();
-  const { ids } = state.contacts;
-  contactsAddedListener(cb, ids);
-  contactsRemovedListener(cb);
+const contactsListener = () => {
+  let executed = false;
+
+  return {
+    // this way we guarantee that the listeners will be triggered only once
+    listen: (cb, ids) => {
+      if (!executed) {
+        executed = true;
+        contactsAddedListener(cb, ids);
+        contactsRemovedListener(cb);
+      }
+    },
+    // this will clear closure variables, should be used after logging out,
+    // so a new log in can turn on listeners
+    remove: () => {
+      executed = false;
+    },
+  };
 };
 
-export default contactsListener;
+export default contactsListener();

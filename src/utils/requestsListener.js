@@ -1,6 +1,5 @@
 import { auth, db, functions } from '../firebase';
 import { requestReceived, requestRemoved } from '../features/requestsSlice';
-import store from '../store';
 
 // Listen for new coming requests
 const requestsAddedListener = (cb, ids) =>
@@ -43,11 +42,22 @@ const requestsRemovedListener = (cb) =>
     .on('child_removed', (snapshot) => cb(requestRemoved(snapshot.key)));
 
 // this will turn all listeners for requests (adding or removing)
-const requestsListener = (cb) => {
-  const state = store.getState();
-  const { ids } = state.requests;
-  requestsAddedListener(cb, ids);
-  requestsRemovedListener(cb);
+const requestsListener = () => {
+  let executed = false;
+
+  return {
+    listen: (cb, ids) => {
+      if (!executed) {
+        executed = true;
+        requestsAddedListener(cb, ids);
+        requestsRemovedListener(cb);
+      }
+    },
+
+    remove: () => {
+      executed = false;
+    },
+  };
 };
 
-export default requestsListener;
+export default requestsListener();

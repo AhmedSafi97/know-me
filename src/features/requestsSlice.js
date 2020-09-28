@@ -5,7 +5,7 @@ import {
   createAsyncThunk,
 } from '@reduxjs/toolkit';
 
-import { retrieveRequestsInfo } from '../utils';
+import retrieveRequestsInfo from './retrieveContactsInfo';
 
 const requestsAdapter = createEntityAdapter();
 

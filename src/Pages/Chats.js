@@ -15,10 +15,10 @@ const Chats = () => {
       <div className="relative p-4 md:px-16 xl:px-32 flex-grow text-gray-dark">
         <button
           type="button"
-          className="absolute bottom-0 right-0"
+          className="absolute bottom-0 right-0 mr-4 mb-4"
           onClick={() => history.push('/chats/contacts')}
         >
-          <Contacts className="inline mr-2" />
+          <Contacts className="inline" />
         </button>
         <div className="mt-4">
           <LastMessagesList />

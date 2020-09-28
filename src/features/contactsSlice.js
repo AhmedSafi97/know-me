@@ -5,7 +5,7 @@ import {
   createAsyncThunk,
 } from '@reduxjs/toolkit';
 
-import retrieveContactsInfo from '../utils/retrieveContactsInfo';
+import retrieveContactsInfo from './retrieveContactsInfo';
 
 const contactsAdapter = createEntityAdapter();
 
@@ -15,7 +15,7 @@ const initialState = contactsAdapter.getInitialState({
 });
 
 export const fetchContacts = createAsyncThunk('fetch/contacts', async () => {
-  const contacts = await retrieveContactsInfo().catch(console.log);
+  const contacts = await retrieveContactsInfo();
 
   return contacts.filter((contact) => contact !== null);
 });
@@ -36,7 +36,6 @@ const contactsSlice = createSlice({
       contactsAdapter.setAll(state, action.payload);
     },
     [fetchContacts.rejected]: (state, v) => {
-      console.log(v);
       state.status = 'failed';
       state.error = 'Something went wrong, unable to retrieve your contacts.';
     },
