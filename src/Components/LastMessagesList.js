@@ -7,18 +7,17 @@ import {
   selectContactById,
   selectContactsIds,
 } from '../features/contactsSlice';
-import { selectLastMessageById } from '../features/lastMessagesSlice';
-import Spinner from './Spinner';
+import { selectRoomById } from '../features/roomsSlice';
 import Contact from './Contact';
 import LastMessage from './LastMessage';
 
 const LastMessageExcerpt = ({ contactId }) => {
   const history = useHistory();
-  const { displayName, photoURL, chatId } = useSelector((state) =>
+  const { displayName, photoURL, roomId } = useSelector((state) =>
     selectContactById(state, contactId)
   );
   const { text, timestamp } = useSelector((state) =>
-    selectLastMessageById(state, chatId)
+    selectRoomById(state, roomId)
   );
 
   if (text) {
@@ -27,7 +26,7 @@ const LastMessageExcerpt = ({ contactId }) => {
         type="button"
         key={contactId}
         className="mt-4 flex items-center"
-        onClick={() => history.push(`/chats/${chatId}`)}
+        onClick={() => history.push(`/chats/${roomId}`)}
       >
         <Contact image={photoURL} />
         <LastMessage
@@ -45,22 +44,14 @@ const LastMessageExcerpt = ({ contactId }) => {
 
 const LastMessagesList = () => {
   const contactsIds = useSelector(selectContactsIds);
-  const contactsStatus = useSelector((state) => state.contacts.status);
-  const contactsError = useSelector((state) => state.contacts.error);
 
-  let contacts;
-
-  if (contactsStatus === 'loading') {
-    contacts = <Spinner centered={false} />;
-  } else if (contactsStatus === 'succeeded') {
-    contacts = contactsIds.map((contactId) => (
-      <LastMessageExcerpt key={contactId} contactId={contactId} />
-    ));
-  } else if (contactsStatus === 'failed') {
-    contacts = <div className="text-red-600 mt-2">{contactsError}</div>;
-  }
-
-  return <div>{contacts}</div>;
+  return (
+    <div>
+      {contactsIds.map((contactId) => (
+        <LastMessageExcerpt key={contactId} contactId={contactId} />
+      ))}
+    </div>
+  );
 };
 
 LastMessageExcerpt.propTypes = {

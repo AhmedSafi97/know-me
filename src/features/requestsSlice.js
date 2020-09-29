@@ -1,24 +1,9 @@
 /* eslint-disable no-param-reassign */
-import {
-  createSlice,
-  createEntityAdapter,
-  createAsyncThunk,
-} from '@reduxjs/toolkit';
-
-import retrieveRequestsInfo from './retrieveContactsInfo';
+import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
 
 const requestsAdapter = createEntityAdapter();
 
-const initialState = requestsAdapter.getInitialState({
-  status: 'idle',
-  error: null,
-});
-
-export const fetchRequests = createAsyncThunk('fetch/requests', async () => {
-  const requests = await retrieveRequestsInfo();
-
-  return requests.filter((request) => request !== null);
-});
+const initialState = requestsAdapter.getInitialState();
 
 const requestsSlice = createSlice({
   name: 'requests',
@@ -26,20 +11,6 @@ const requestsSlice = createSlice({
   reducers: {
     requestReceived: requestsAdapter.addOne,
     requestRemoved: requestsAdapter.removeOne,
-  },
-  extraReducers: {
-    [fetchRequests.pending]: (state) => {
-      state.status = 'loading';
-    },
-    [fetchRequests.fulfilled]: (state, action) => {
-      state.status = 'succeeded';
-      requestsAdapter.setAll(state, action.payload);
-    },
-    [fetchRequests.rejected]: (state) => {
-      state.status = 'failed';
-      state.error =
-        'Something went wrong, unable to retrieve your friendship requests.';
-    },
   },
 });
 

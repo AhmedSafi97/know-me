@@ -1,82 +1,89 @@
 import { auth, db, functions } from '../firebase';
 import { contactAdded, contactRemoved } from '../features/contactsSlice';
-import { lastMessageAdded } from '../features/lastMessagesSlice';
+import { roomAdded, roomUpdated, roomRemoved } from '../features/roomsSlice';
 
 // Listen for new contacts added
-const contactsAddedListener = (cb, ids) =>
+// for each added contact a room will be added also
+// and a listener for the new room will be called
+const contactsAddedListener = (dispatch) =>
   db
     .ref(`users/${auth.currentUser.uid}/contacts`)
     .on('child_added', async (snapshot) => {
       const contactId = snapshot.key;
-      const chatId = snapshot.val();
+      const roomId = snapshot.val();
 
-      // skipping the first trigger of the child_added
-      if (!ids.includes(contactId)) {
-        try {
-          const fetchContactDetails = functions.httpsCallable(
-            'fetchContactDetails'
-          );
-          const { data } = await fetchContactDetails({
+      try {
+        const fetchContactDetails = functions.httpsCallable(
+          'fetchContactDetails'
+        );
+        const { data } = await fetchContactDetails({
+          contactId,
+        });
+        const { displayName, photoURL, error } = data;
+
+        if (error) throw new Error(error);
+
+        const { text, timestamp } = await db
+          .ref(`rooms/${roomId}/last_msg/msg`)
+          .once('value')
+          .then((msgSnapshot) => msgSnapshot.val());
+
+        dispatch(
+          roomAdded({
+            id: roomId,
             contactId,
+            text,
+            timestamp,
+          })
+        );
+        dispatch(
+          contactAdded({
+            id: contactId,
+            roomId,
+            displayName,
+            photoURL,
+          })
+        );
+
+        await db
+          .ref(`rooms/${roomId}/last_msg`)
+          .on('child_changed', (msgSnapshot) => {
+            const {
+              text: msgText,
+              timestamp: msgTimestamp,
+            } = msgSnapshot.val();
+
+            dispatch(
+              roomUpdated({
+                id: roomId,
+                changes: {
+                  text: msgText,
+                  timestamp: msgTimestamp,
+                },
+              })
+            );
           });
-          const { displayName, photoURL, error } = data;
-
-          if (error) throw new Error(error);
-
-          cb(
-            contactAdded({
-              id: contactId,
-              chatId,
-              displayName,
-              photoURL,
-            })
-          );
-
-          const { text, timestamp } = await db
-            .ref(`chats/${chatId}/last_msg/msg`)
-            .once('value')
-            .then((chatSnapshot) => chatSnapshot.val());
-
-          cb(
-            lastMessageAdded({
-              id: chatId,
-              text,
-              timestamp,
-            })
-          );
-        } catch (err) {
-          // skipping errors for the mean time
-          console.log('');
-        }
+      } catch (err) {
+        console.log(err);
+        // skipping errors for the mean time
+        console.log('');
       }
     });
 
 // listen for removed contacts
 // in case of adding the feature of deleting contacts
-const contactsRemovedListener = (cb) =>
+const contactsRemovedListener = (dispatch) =>
   db
     .ref(`users/${auth.currentUser.uid}/contacts`)
-    .on('child_removed', (snapshot) => cb(contactRemoved(snapshot.key)));
+    .on('child_removed', (snapshot) => {
+      dispatch(contactRemoved(snapshot.key));
+      dispatch(roomRemoved(snapshot.val()));
+    });
 
 // this will turn on all listeners for contacts (adding or removing)
-const contactsListener = () => {
-  let executed = false;
-
-  return {
-    // this way we guarantee that the listeners will be triggered only once
-    listen: (cb, ids) => {
-      if (!executed) {
-        executed = true;
-        contactsAddedListener(cb, ids);
-        contactsRemovedListener(cb);
-      }
-    },
-    // this will clear closure variables, should be used after logging out,
-    // so a new log in can turn on listeners
-    remove: () => {
-      executed = false;
-    },
-  };
+const contactsListener = (dispatch) => {
+  contactsAddedListener(dispatch);
+  contactsRemovedListener(dispatch);
 };
 
-export default contactsListener();
+export default contactsListener;

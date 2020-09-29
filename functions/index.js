@@ -85,23 +85,22 @@ exports.acceptFriendshipRequest = functions.https.onCall(
         await receiverRef.child('received_requests').child(senderId).remove();
         await senderRef.child('sent_requests').child(receiverId).remove();
 
-        const chatRef = await admin.database().ref(`chats`).push();
-        const chatId = chatRef.key;
+        const roomRef = await admin.database().ref(`rooms`).push();
+        const roomId = roomRef.key;
 
-        await receiverRef.child('contacts').update({ [senderId]: chatId });
-        await senderRef.child('contacts').update({ [receiverId]: chatId });
+        await receiverRef.child('contacts').update({ [senderId]: roomId });
+        await senderRef.child('contacts').update({ [receiverId]: roomId });
 
-        await chatRef.set({
+        await roomRef.set({
           [senderId]: true,
           [receiverId]: true,
           last_msg: {
-            text: '',
-            timestamp: Date.now(),
+            msg: {
+              text: '',
+              timestamp: Date.now(),
+            },
           },
         });
-
-        await receiverRef.child('chats').update({ [chatId]: senderId });
-        await senderRef.child('chats').update({ [chatId]: receiverId });
 
         return {};
       } catch (err) {

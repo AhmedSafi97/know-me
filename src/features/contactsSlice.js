@@ -1,24 +1,9 @@
 /* eslint-disable no-param-reassign */
-import {
-  createSlice,
-  createEntityAdapter,
-  createAsyncThunk,
-} from '@reduxjs/toolkit';
-
-import retrieveContactsInfo from './retrieveContactsInfo';
+import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
 
 const contactsAdapter = createEntityAdapter();
 
-const initialState = contactsAdapter.getInitialState({
-  status: 'idle',
-  error: null,
-});
-
-export const fetchContacts = createAsyncThunk('fetch/contacts', async () => {
-  const contacts = await retrieveContactsInfo();
-
-  return contacts.filter((contact) => contact !== null);
-});
+const initialState = contactsAdapter.getInitialState();
 
 const contactsSlice = createSlice({
   name: 'contacts',
@@ -26,19 +11,6 @@ const contactsSlice = createSlice({
   reducers: {
     contactAdded: contactsAdapter.addOne,
     contactRemoved: contactsAdapter.removeOne,
-  },
-  extraReducers: {
-    [fetchContacts.pending]: (state) => {
-      state.status = 'loading';
-    },
-    [fetchContacts.fulfilled]: (state, action) => {
-      state.status = 'succeeded';
-      contactsAdapter.setAll(state, action.payload);
-    },
-    [fetchContacts.rejected]: (state, v) => {
-      state.status = 'failed';
-      state.error = 'Something went wrong, unable to retrieve your contacts.';
-    },
   },
 });
 

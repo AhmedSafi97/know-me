@@ -7,7 +7,6 @@ import {
   selectContactById,
   selectContactsIds,
 } from '../features/contactsSlice';
-import Spinner from './Spinner';
 import Contact from './Contact';
 
 const ContactExcerpt = ({ contactId }) => {
@@ -31,22 +30,14 @@ const ContactExcerpt = ({ contactId }) => {
 
 const ContactsList = () => {
   const contactsIds = useSelector(selectContactsIds);
-  const contactsStatus = useSelector((state) => state.contacts.status);
-  const contactsError = useSelector((state) => state.contacts.error);
 
-  let contacts;
-
-  if (contactsStatus === 'loading') {
-    contacts = <Spinner centered={false} />;
-  } else if (contactsStatus === 'succeeded') {
-    contacts = contactsIds.map((contactId) => (
-      <ContactExcerpt key={contactId} contactId={contactId} />
-    ));
-  } else if (contactsStatus === 'failed') {
-    contacts = <div className="text-red-600 mt-2">{contactsError}</div>;
-  }
-
-  return <div>{contacts}</div>;
+  return (
+    <div>
+      {contactsIds.map((contactId) => (
+        <ContactExcerpt key={contactId} contactId={contactId} />
+      ))}
+    </div>
+  );
 };
 
 ContactExcerpt.propTypes = {
