@@ -10,7 +10,7 @@ const SendMessage = ({ value, onChange, onClick }) => (
       type="text"
       value={value}
       onChange={onChange}
-      className="outline-none text-gray-medium"
+      className="outline-none text-gray-dark w-full mx-2"
     />
     <button type="submit" aria-label="send message" onClick={onClick}>
       {value ? <SendActive className="inline" /> : <Send className="inline" />}

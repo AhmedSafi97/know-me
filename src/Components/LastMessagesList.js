@@ -13,7 +13,7 @@ import LastMessage from './LastMessage';
 
 const LastMessageExcerpt = ({ contactId }) => {
   const history = useHistory();
-  const { displayName, photoURL, roomId } = useSelector((state) =>
+  const { id, displayName, photoURL, roomId } = useSelector((state) =>
     selectContactById(state, contactId)
   );
   const { text, timestamp } = useSelector((state) =>
@@ -26,7 +26,7 @@ const LastMessageExcerpt = ({ contactId }) => {
         type="button"
         key={contactId}
         className="mt-4 flex items-center"
-        onClick={() => history.push(`/chats/${roomId}`)}
+        onClick={() => history.push(`/chats/${id}`)}
       >
         <Contact image={photoURL} />
         <LastMessage

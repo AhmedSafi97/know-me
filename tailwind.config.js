@@ -36,6 +36,9 @@ module.exports = {
       borderRadius: {
         xl: '1rem',
       },
+      spacing: {
+        fit: 'calc(100vh - 130px)',
+      },
     },
   },
 };
