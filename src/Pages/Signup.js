@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { auth } from '../firebase';
-import { Header, Button, TextInput } from '../Components';
+import { Button, TextInput } from '../Components';
 import { ReactComponent as Password } from '../assets/password.svg';
 import { ReactComponent as Email } from '../assets/email-dark.svg';
 import { ReactComponent as Arrow } from '../assets/right-arrow.svg';
@@ -40,51 +40,48 @@ const Signup = () => {
   };
 
   return (
-    <div className="h-screen">
-      <Header />
-      <div className="px-4">
-        <div className="h-48 grid content-between mt-12 mb-8">
-          <TextInput
-            placeholder="Email"
-            label="email"
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          >
-            <Email className="absolute left-icon top-icon" />
-          </TextInput>
-          <TextInput
-            placeholder="Password"
-            label="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          >
-            <Password className="absolute left-icon top-icon" />
-          </TextInput>
-          <TextInput
-            placeholder="Confirm Password"
-            label="confirm password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          >
-            <Password className="absolute left-icon top-icon" />
-          </TextInput>
-        </div>
-        <Button onClick={() => handleSignup()}>
-          <span>SIGNUP</span>
-        </Button>
-        {error && <p className="text-red-700 my-2 text-center">{error}</p>}
-        <button
-          type="button"
-          className="block m-auto mt-20"
-          onClick={() => history.push('/login')}
+    <div>
+      <div className="h-48 grid content-between mt-12 mb-8">
+        <TextInput
+          placeholder="Email"
+          label="email"
+          type="text"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         >
-          <span className="mr-1">Already have an account?</span>
-          <Arrow className="inline ml-1" />
-        </button>
+          <Email className="absolute left-icon top-icon" />
+        </TextInput>
+        <TextInput
+          placeholder="Password"
+          label="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        >
+          <Password className="absolute left-icon top-icon" />
+        </TextInput>
+        <TextInput
+          placeholder="Confirm Password"
+          label="confirm password"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        >
+          <Password className="absolute left-icon top-icon" />
+        </TextInput>
       </div>
+      <Button onClick={() => handleSignup()}>
+        <span>SIGNUP</span>
+      </Button>
+      {error && <p className="text-red-700 my-2 text-center">{error}</p>}
+      <button
+        type="button"
+        className="block m-auto mt-16"
+        onClick={() => history.push('/login')}
+      >
+        <span className="mr-1">Already have an account?</span>
+        <Arrow className="inline ml-1" />
+      </button>
     </div>
   );
 };

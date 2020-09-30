@@ -4,6 +4,7 @@ import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { selectCurrentUser } from '../features/currentUserSlice';
+import PublicLayout from './PublicLayout';
 import Spinner from './Spinner';
 
 const PublicRoute = ({ children, path }) => {
@@ -14,7 +15,7 @@ const PublicRoute = ({ children, path }) => {
   if (auth === true) {
     renderedComponent = <Redirect to="/connect" />;
   } else if (auth === false) {
-    renderedComponent = children;
+    renderedComponent = <PublicLayout>{children}</PublicLayout>;
   } else {
     renderedComponent = <Spinner />;
   }

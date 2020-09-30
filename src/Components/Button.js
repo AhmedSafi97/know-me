@@ -4,7 +4,7 @@ import propTypes from 'prop-types';
 const Button = ({ primaryStyle, onClick, children }) => (
   <button
     type="button"
-    className={`w-full max-w-sm py-4 m-auto rounded-full flex justify-center items-center ${
+    className={`shadow-lg w-full max-w-sm py-4 m-auto rounded-full flex justify-center items-center ${
       primaryStyle ? 'bg-blue text-white' : 'bg-gray-light text-gray-dark'
     }`}
     onClick={onClick}

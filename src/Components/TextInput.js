@@ -10,7 +10,7 @@ const TextInput = ({ children, placeholder, value, label, type, onChange }) => (
       value={value}
       aria-label={label}
       onChange={onChange}
-      className="block bg-gray-light text-gray-dark placeholder-gray-dark placeholder-opacity-100 rounded-full w-full py-4 px-12 m-auto"
+      className="shadow-md block bg-gray-light text-gray-dark placeholder-gray-dark placeholder-opacity-100 rounded-full w-full py-4 px-12 m-auto"
     />
   </div>
 );
