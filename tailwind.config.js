@@ -37,7 +37,8 @@ module.exports = {
         xl: '1rem',
       },
       spacing: {
-        fit: 'calc(100vh - 130px)',
+        fit: 'calc(100vh - 141px)',
+        'half-screen': 'calc((100vh - 12rem) / 2)',
       },
     },
   },

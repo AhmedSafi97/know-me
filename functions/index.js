@@ -3,6 +3,15 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
+const clear = async (room, user1, user2) => {
+  const root = admin.database();
+  await root.ref(`random/rooms/${room}`).remove();
+  await root.ref(`random/users/${user1}`).remove();
+  await root.ref(`random/users/${user2}`).remove();
+  await root.ref(`users/${user1}/random`).remove();
+  await root.ref(`users/${user2}/random`).remove();
+};
+
 exports.findUser = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -57,10 +66,19 @@ exports.fetchContactDetails = functions.https.onCall(async (data, context) => {
   } else {
     try {
       const { contactId } = data;
+      const contactRef = admin.database().ref(`users/${contactId}`);
+      const contactAge = await contactRef
+        .child('age')
+        .once('value')
+        .then((snap) => snap.val());
+      const contactGender = await contactRef
+        .child('gender')
+        .once('value')
+        .then((snap) => snap.val());
       const contactRecord = await admin.auth().getUser(contactId);
       const { displayName, photoURL } = contactRecord.toJSON();
 
-      return { displayName, photoURL };
+      return { displayName, photoURL, contactAge, contactGender };
     } catch (err) {
       return { error: 'Something went wrong' };
     }
@@ -109,3 +127,110 @@ exports.acceptFriendshipRequest = functions.https.onCall(
     }
   }
 );
+
+exports.makeAvailableToConnect = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'The function must be called while authenticated.'
+      );
+    } else {
+      const { uid } = context.auth;
+      await admin
+        .database()
+        .ref('random/users')
+        .update({ [uid]: 'waiting' });
+    }
+
+    return {};
+  }
+);
+
+exports.checkIn = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called while authenticated.'
+    );
+  } else {
+    const { roomId, contactId } = data;
+    const userId = context.auth.uid;
+    const roomRef = admin.database().ref(`random/rooms/${roomId}`);
+
+    const status = await roomRef
+      .child(contactId)
+      .once('value')
+      .then((snap) => snap.val());
+
+    if (status === 'in') {
+      await roomRef.update({
+        [userId]: 'in',
+        [contactId]: 'out',
+      });
+
+      return { status: 'in' };
+    }
+
+    await clear(roomId, userId, contactId);
+
+    return { status: 'out' };
+  }
+});
+
+exports.connectUsersRandomly = functions.database
+  .ref('random/users/{userId}')
+  .onCreate(async (snapshot, context) => {
+    const { userId } = context.params;
+
+    const usersRef = snapshot.ref.parent;
+
+    // return users with status of waiting including the current user
+    const users = await usersRef
+      .orderByValue()
+      .equalTo('waiting')
+      .once('value')
+      .then((userSnapshot) => userSnapshot.val());
+    // delete the current user from the list
+    // no user wants to connect with him/her self
+    delete users[userId];
+
+    // taking the first user from the list
+    const [userToConnectWith] = Object.keys(users);
+
+    // check if there is a user to connect with
+    if (userToConnectWith) {
+      const roomRef = await usersRef.parent.child('rooms').push();
+      const roomId = roomRef.key;
+      const contactsRef = admin.database().ref('users');
+
+      await roomRef.set({
+        [userId]: 'in',
+        [userToConnectWith]: 'in',
+      });
+
+      await usersRef.update({
+        [userId]: 'connected',
+      });
+
+      await usersRef.update({
+        [userToConnectWith]: 'connected',
+      });
+
+      await contactsRef
+        .child(userToConnectWith)
+        .child('random')
+        .set({
+          [roomId]: userId,
+        });
+
+      await contactsRef
+        .child(userId)
+        .child('random')
+        .set({
+          [roomId]: userToConnectWith,
+        });
+    }
+
+    return null;
+  });

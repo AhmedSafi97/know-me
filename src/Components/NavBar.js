@@ -19,7 +19,7 @@ const NavBar = () => {
   const { pathname } = useLocation();
 
   return (
-    <nav className="flex lg:flex-col justify-between lg:items-center px-4 py-3 md:px-16 lg:px-2 lg:py-2 w-full lg:w-12 shadow-navbar lg:h-48 lg:fixed lg:top-half-screen">
+    <nav className="fixed bottom-0 left-0 right-0 flex lg:flex-col justify-between lg:items-center px-4 py-3 md:px-16 lg:px-2 lg:py-2 w-full lg:w-12 shadow-navbar lg:h-48 lg:fixed lg:bottom-auto lg:right-auto lg:left-0 lg:top-half-screen">
       {Object.values(CONFIG).map(({ path, Icon, ActiveIcon }) => (
         <button
           key={path}
