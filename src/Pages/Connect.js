@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { functions, db, auth } from '../firebase';
 import {
   Header,
   NavBar,
-  WaitingConnect,
   WaitingToConnect,
-  Message,
+  RandomContact,
   SendMessage,
   Contact,
+  MessagesList,
+  Exit,
 } from '../Components';
 import { ReactComponent as ConnectIcon } from '../assets/connects.svg';
 
 const Connect = () => {
-  const messagesRef = useRef();
   const [waiting, setWaiting] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -22,11 +22,18 @@ const Connect = () => {
   const [contact, setContact] = useState({});
   const [chats, setChats] = useState([]);
 
-  useEffect(() => {
-    if (messagesRef.current && connected) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-    }
-  }, [chats, connected]);
+  useEffect(
+    () => async () => {
+      const { roomId, contactId } = contact;
+      console.log('here out');
+      if (roomId && contactId) {
+        console.log('component umoneted');
+        await db.ref(`users/${auth.currentUser.uid}/random`).off();
+        functions.httpsCallable('disconnect')({ roomId, contactId });
+      }
+    },
+    [contact]
+  );
 
   const clearStates = () => {
     setConnected(false);
@@ -58,7 +65,7 @@ const Connect = () => {
   const startConnecting = async () => {
     setWaiting(true);
 
-    await functions.httpsCallable('makeAvailableToConnect')({});
+    await functions.httpsCallable('makeAvailableToConnect')();
 
     await db
       .ref(`users/${auth.currentUser.uid}/random`)
@@ -80,10 +87,9 @@ const Connect = () => {
             .on('child_added', (snap) => {
               const id = snap.key;
               const { text, timestamp } = snap.val();
-              const direction = 'left';
 
               setChats((state) =>
-                [{ id, text, timestamp, direction }, ...state].sort(
+                [{ id, text, timestamp, contact: 'left' }, ...state].sort(
                   (a, b) => a.timestamp - b.timestamp
                 )
               );
@@ -93,6 +99,12 @@ const Connect = () => {
             () => checkIn(roomId, contactId, interval),
             30000
           );
+
+          await db
+            .ref(`users/${auth.currentUser.uid}/random`)
+            .on('child_removed', async (snap) =>
+              clear(snap.key, snap.val(), interval)
+            );
 
           setConnecting(false);
           setConnected(true);
@@ -124,7 +136,7 @@ const Connect = () => {
         [
           {
             id: newMessageRef.key,
-            direction: 'right',
+            contact: 'right',
             text: message,
             timestamp,
           },
@@ -136,48 +148,44 @@ const Connect = () => {
     }
   };
 
-  if (waiting)
-    return (
-      <div className="bg-blue h-screen flex flex-col items-center ">
-        <WaitingConnect />
-      </div>
-    );
+  const exitWaiting = async () => {
+    await functions.httpsCallable('makeUnavailableToConnect')({});
+    await db.ref(`users/${auth.currentUser.uid}/random`);
+    setWaiting(false);
+  };
+
+  if (waiting) return <WaitingToConnect exitHandler={exitWaiting} />;
 
   if (connecting) {
     const { displayName, photoURL, contactAge, contactGender } = contact;
     return (
-      <div className="bg-blue h-screen flex flex-col items-center ">
-        <div className="mt-half-screen">
-          <WaitingToConnect
-            name={displayName}
-            image={photoURL}
-            age={contactAge}
-            gender={contactGender}
-          />
-        </div>
-      </div>
+      <RandomContact
+        name={displayName}
+        image={photoURL}
+        age={contactAge}
+        gender={contactGender}
+      />
     );
   }
 
   if (connected) {
-    const { displayName, photoURL } = contact;
+    const { roomId, contactId, displayName, photoURL } = contact;
 
     return (
       <div>
         <header className="p-2 md:px-16 xl:px-32 shadow-navbar text-center text-2xl text-gray-dark flex">
+          <Exit
+            primaryStyle
+            onClick={() =>
+              functions.httpsCallable('disconnect')({ roomId, contactId })
+            }
+          />
           <div className="flex-grow-2 flex flex-col items-center">
             <Contact image={photoURL} />
             <p className="text-sm mt-1">{displayName}</p>
           </div>
         </header>
-        <div
-          ref={messagesRef}
-          className="flex flex-col overflow-y-scroll break-words h-fit w-full max-w-4xl m-auto p-4 pb-0"
-        >
-          {chats.map(({ id, direction, text }) => (
-            <Message key={id} text={text} direction={direction} />
-          ))}
-        </div>
+        <MessagesList messages={chats} />
         <div className="fixed bottom-0 left-0 right-0">
           <SendMessage
             value={message}

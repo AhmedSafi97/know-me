@@ -11,7 +11,13 @@ import {
   chatsRemoved,
 } from '../features/chatsSlice';
 import { chatsListener } from '../utils';
-import { Message, Exist, Contact, SendMessage, Spinner } from '../Components';
+import {
+  Exit,
+  Contact,
+  SendMessage,
+  Spinner,
+  MessagesList,
+} from '../Components';
 
 const Messages = () => {
   const messagesRef = useRef();
@@ -52,8 +58,8 @@ const Messages = () => {
   }, [chats]);
 
   const sendMessage = async (e) => {
+    e.preventDefault();
     if (message) {
-      e.preventDefault();
       const { roomId } = contact;
       const timestamp = Date.now();
 
@@ -87,9 +93,7 @@ const Messages = () => {
   if (chatsStatus === 'loading') {
     content = <div className="loader">loading...</div>;
   } else if (chatsStatus === 'succeeded') {
-    content = chats.map((msg) => (
-      <Message key={msg.id} text={msg.text} direction={msg.contact} />
-    ));
+    content = <MessagesList messages={chats} />;
   } else if (chatsStatus === 'failed') {
     content = <div>{chatsError}</div>;
   }
@@ -100,7 +104,8 @@ const Messages = () => {
     return (
       <div>
         <header className="p-2 md:px-16 xl:px-32 shadow-navbar text-center text-2xl text-gray-dark flex">
-          <Exist
+          <Exit
+            primaryStyle
             onClick={() => {
               history.push('/chats');
               dispatch(chatsRemoved());
@@ -111,12 +116,7 @@ const Messages = () => {
             <p className="text-sm mt-1">{displayName}</p>
           </div>
         </header>
-        <div
-          ref={messagesRef}
-          className="flex flex-col overflow-y-scroll break-words h-fit w-full max-w-4xl m-auto p-4"
-        >
-          {content}
-        </div>
+        <div>{content}</div>
         <div className="fixed bottom-0 left-0 right-0">
           <SendMessage
             value={message}
@@ -127,6 +127,7 @@ const Messages = () => {
       </div>
     );
   }
+
   return <Spinner />;
 };
 

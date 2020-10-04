@@ -1,31 +1,26 @@
 import React from 'react';
 import propTypes from 'prop-types';
 
-import { ReactComponent as FemaleIcon } from '../assets/no-border-female.svg';
-import { ReactComponent as MaleIcon } from '../assets/male-selected.svg';
+import Exit from './Exit';
+import { ReactComponent as Spinner } from '../assets/white-spinner.svg';
 
-const WaitingToConnect = ({ gender, name, age, image }) => (
-  <div className="w-32 bg-blue">
-    <img src={image} className="block w-32 h-32 rounded-full" alt="contact" />
-    <div className="flex items-center justify-center mt-4 mb-24 text-white">
-      <span>
-        {name}, {age}&nbsp;
-      </span>
-      {gender === 'female' ? (
-        <FemaleIcon className="inline" />
-      ) : (
-        <MaleIcon className="inline" />
-      )}
+const WaitingConnect = ({ exitHandler }) => (
+  <div className="p-4 md:px-16 xl:px-32 bg-blue h-screen">
+    <Exit primaryStyle={false} onClick={exitHandler} />
+    <div className="bg-blue w-full max-w-sm m-auto px-4 h-fit flex flex-col items-center justify-center">
+      <Spinner className="spin" />
+      <p className="text-xl text-white text-center mt-16">
+        There are no strangers only friends you haven&apos;t met yet&nbsp;
+        <span role="img" aria-label="smile">
+          😃
+        </span>
+      </p>
     </div>
-    <p className="text-white text-xl text-center">Connecting...</p>
   </div>
 );
 
-WaitingToConnect.propTypes = {
-  gender: propTypes.string.isRequired,
-  name: propTypes.string.isRequired,
-  age: propTypes.number.isRequired,
-  image: propTypes.string.isRequired,
+WaitingConnect.propTypes = {
+  exitHandler: propTypes.func.isRequired,
 };
 
-export default WaitingToConnect;
+export default WaitingConnect;

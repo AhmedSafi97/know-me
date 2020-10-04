@@ -147,6 +147,22 @@ exports.makeAvailableToConnect = functions.https.onCall(
   }
 );
 
+exports.makeUnavailableToConnect = functions.https.onCall(
+  async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'The function must be called while authenticated.'
+      );
+    } else {
+      const { uid } = context.auth;
+      await admin.database().ref('random/users').child(uid).remove();
+    }
+
+    return {};
+  }
+);
+
 exports.checkIn = functions.https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -175,6 +191,22 @@ exports.checkIn = functions.https.onCall(async (data, context) => {
     await clear(roomId, userId, contactId);
 
     return { status: 'out' };
+  }
+});
+
+exports.disconnect = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called while authenticated.'
+    );
+  } else {
+    const { roomId, contactId } = data;
+    const userId = context.auth.uid;
+
+    await clear(roomId, userId, contactId);
+
+    return {};
   }
 });
 

@@ -5,7 +5,7 @@ import { functions, db, auth } from '../firebase';
 
 import {
   NavBar,
-  Exist,
+  Exit,
   Popup,
   TextInput,
   Button,
@@ -126,7 +126,7 @@ const Contacts = () => {
   return (
     <div className="flex flex-col h-screen">
       <header className="p-2 md:px-16 xl:px-32 shadow-navbar text-center text-2xl text-gray-dark flex">
-        <Exist onClick={() => history.push('/chats')} />
+        <Exit primaryStyle onClick={() => history.push('/chats')} />
         <h1 className="flex-grow-2">Contacts</h1>
       </header>
       <div className="p-4 md:px-16 xl:px-32 flex-grow text-gray-dark">

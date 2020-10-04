@@ -21,4 +21,4 @@ Message.propTypes = {
   direction: propTypes.string.isRequired,
 };
 
-export default Message;
+export default React.memo(Message);
