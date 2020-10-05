@@ -17,7 +17,7 @@ const PublicLayout = ({ children }) => {
 
   return (
     <div
-      className="h-screen bg-cover bg-center bg-clip-border"
+      className="h-screen bg-cover bg-bottom"
       style={{ backgroundImage: `url(${bg})` }}
     >
       <Header />
