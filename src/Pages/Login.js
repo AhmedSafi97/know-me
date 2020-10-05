@@ -2,40 +2,25 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { auth } from '../firebase';
-import { Button, TextInput } from '../Components';
+import { getErrorMessage } from '../utils';
+import { Button, TextInput, ErrorDisplay } from '../Components';
 import { ReactComponent as Password } from '../assets/password.svg';
 import { ReactComponent as Email } from '../assets/email-dark.svg';
 import { ReactComponent as Arrow } from '../assets/right-arrow.svg';
-
-const validateForm = (email, password) => {
-  if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
-    return 'Invalid email address';
-  }
-  if (!password || !/^.{6,}$/i.test(password)) {
-    return 'Password must be at least 6 characters';
-  }
-  return null;
-};
 
 const Login = () => {
   const history = useHistory();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState();
+  const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    const validationResult = validateForm(email, password);
-    if (validationResult === null) {
-      auth.signInWithEmailAndPassword(email, password).catch(({ code }) => {
-        if (code === 'auth/user-not-found' || code === 'auth/wrong-password')
-          setError('Please double check your password or email');
-        else setError('Something went wrong, please try again later');
-      });
-    } else {
-      setError(validationResult);
-    }
-  };
+  const handleLogin = () =>
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .catch(({ code }) => setError(getErrorMessage(code)));
+
+  const btnDisabled = !(email.length > 5 && password.length > 5);
 
   return (
     <div>
@@ -59,10 +44,10 @@ const Login = () => {
           <Password className="absolute left-icon top-icon" />
         </TextInput>
       </div>
-      <Button onClick={() => handleLogin()}>
+      <Button disabled={btnDisabled} onClick={handleLogin}>
         <span>LOGIN</span>
       </Button>
-      {error && <p className="text-red-700 my-2 text-center">{error}</p>}
+      <ErrorDisplay text={error} onClick={() => setError('')} />
       <button
         type="button"
         className="block text-blue m-auto mt-4"

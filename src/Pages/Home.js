@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Button } from '../Components';
+import { Button, ErrorDisplay } from '../Components';
 import { ReactComponent as GoogleIcon } from '../assets/google.svg';
 import { ReactComponent as EmailIcon } from '../assets/email.svg';
 
@@ -10,7 +10,7 @@ import { auth, googleProvider } from '../firebase';
 const Home = () => {
   const history = useHistory();
 
-  const [error, setError] = useState();
+  const [error, setError] = useState('');
 
   const googleLogin = () =>
     auth
@@ -32,7 +32,7 @@ const Home = () => {
           <span className="ml-1">Login with Google</span>
         </Button>
       </div>
-      {error && <p className="text-red-700 my-2 text-center">{error}</p>}
+      <ErrorDisplay text={error} onClick={() => setError('')} />
     </div>
   );
 };

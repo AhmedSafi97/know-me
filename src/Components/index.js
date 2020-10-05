@@ -18,3 +18,4 @@ export { default as ContactsList } from './ContactsList';
 export { default as RequestsList } from './RequestsList';
 export { default as LastMessagesList } from './LastMessagesList';
 export { default as MessagesList } from './MessagesList';
+export { default as ErrorDisplay } from './ErrorDisplay';

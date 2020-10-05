@@ -2,21 +2,11 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { auth } from '../firebase';
-import { Button, TextInput } from '../Components';
+import { getErrorMessage } from '../utils';
+import { Button, TextInput, ErrorDisplay } from '../Components';
 import { ReactComponent as Password } from '../assets/password.svg';
 import { ReactComponent as Email } from '../assets/email-dark.svg';
 import { ReactComponent as Arrow } from '../assets/right-arrow.svg';
-
-const validateForm = (email, password, confirmPassword) => {
-  if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) {
-    return 'Invalid email address';
-  }
-  if (!password || !/^.{6,}$/i.test(password)) {
-    return 'Password must be at least 6 characters';
-  }
-  if (confirmPassword !== password) return "Passwords don't match";
-  return null;
-};
 
 const Signup = () => {
   const history = useHistory();
@@ -24,20 +14,23 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState();
+  const [error, setError] = useState('');
 
-  const handleSignup = () => {
-    const validationResult = validateForm(email, password, confirmPassword);
-    if (validationResult === null) {
-      auth.createUserWithEmailAndPassword(email, password).catch(({ code }) => {
-        if (code === 'auth/email-already-in-use')
-          setError('Email already in use');
-        else setError('Something went wrong, please try again later');
-      });
-    } else {
-      setError(validationResult);
-    }
-  };
+  const handleSignup = () =>
+    auth
+      .createUserWithEmailAndPassword(email, password)
+      .catch(({ code }) => setError(getErrorMessage(code)));
+
+  const matchPassword = () =>
+    password === confirmPassword
+      ? handleSignup()
+      : setError("Passwords don't match");
+
+  const btnDisabled = !(
+    email.length > 5 &&
+    password.length > 5 &&
+    confirmPassword.length > 5
+  );
 
   return (
     <div>
@@ -70,10 +63,10 @@ const Signup = () => {
           <Password className="absolute left-icon top-icon" />
         </TextInput>
       </div>
-      <Button onClick={() => handleSignup()}>
+      <Button disabled={btnDisabled} onClick={matchPassword}>
         <span>SIGNUP</span>
       </Button>
-      {error && <p className="text-red-700 my-2 text-center">{error}</p>}
+      <ErrorDisplay text={error} onClick={() => setError('')} />
       <button
         type="button"
         className="block m-auto mt-16"
