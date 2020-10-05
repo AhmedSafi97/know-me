@@ -15,7 +15,7 @@ const Chats = () => {
       <div className="relative p-4 md:px-16 xl:px-32 flex-grow text-gray-dark">
         <button
           type="button"
-          className="absolute bottom-0 right-0 mr-4 mb-4"
+          className="absolute bottom-0 right-0 mr-4 mb-20 lg:mr-12 lg:mb-12"
           onClick={() => history.push('/chats/contacts')}
         >
           <Contacts className="inline" />
