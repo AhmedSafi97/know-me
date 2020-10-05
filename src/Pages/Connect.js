@@ -25,9 +25,7 @@ const Connect = () => {
   useEffect(
     () => async () => {
       const { roomId, contactId } = contact;
-      console.log('here out');
       if (roomId && contactId) {
-        console.log('component umoneted');
         await db.ref(`users/${auth.currentUser.uid}/random`).off();
         functions.httpsCallable('disconnect')({ roomId, contactId });
       }
@@ -149,8 +147,7 @@ const Connect = () => {
   };
 
   const exitWaiting = async () => {
-    await functions.httpsCallable('makeUnavailableToConnect')({});
-    await db.ref(`users/${auth.currentUser.uid}/random`);
+    await functions.httpsCallable('makeUnavailableToConnect')();
     setWaiting(false);
   };
 

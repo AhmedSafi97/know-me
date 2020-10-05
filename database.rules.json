@@ -1,5 +1,17 @@
 {
   "rules": {
+    "random": {
+      "rooms": {
+        "$roomId": {
+          ".read": "data.hasChild(auth.uid)",
+          "chats": {
+            "$chatId": {
+              ".write": "$chatId === auth.uid"
+            }
+          }
+        }
+      }
+    },
     "users": {
       "$user_id": {
         ".read": "$user_id === auth.uid",
