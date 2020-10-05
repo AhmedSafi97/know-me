@@ -9,7 +9,7 @@ const getErrorMessage = (errCode) => {
     case 'auth/email-already-in-use':
       return 'Another account is using the email you entered.';
     default:
-      return 'Something went wrong, please try again later';
+      return 'Something went wrong, try again later';
   }
 };
 
