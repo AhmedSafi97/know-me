@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import {
@@ -6,6 +6,7 @@ import {
   currentUserAdded,
 } from '../features/currentUserSlice';
 import { auth, db, storage } from '../firebase';
+import { imageLoader } from '../utils';
 import { Button, Spinner } from '../Components';
 import { ReactComponent as FemaleIcon } from '../assets/female.svg';
 import { ReactComponent as FemaleIconSelected } from '../assets/female-selected.svg';
@@ -31,8 +32,15 @@ const CompleteProfile = () => {
   const [name, setName] = useState(currentUser.name || '');
   const [age, setAge] = useState('');
   const [photo, setPhoto] = useState(currentUser.photo || '');
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (photo) {
+      imageLoader(photo, () => setImageLoaded(true));
+    }
+  }, [photo]);
 
   const handlePhotoUpload = (e) => {
     if (e.target.files) {
@@ -106,6 +114,39 @@ const CompleteProfile = () => {
     } else setError(validationResult);
   };
 
+  const imageInput = uploading ? (
+    <Spinner centered={false} />
+  ) : (
+    <div>
+      <label
+        className="cursor-pointer"
+        htmlFor="photo"
+        aria-label="select profile picture"
+      >
+        <input
+          type="file"
+          id="photo"
+          className="w-0 h-0 opacity-0"
+          onChange={handlePhotoUpload}
+        />
+        <SelectPhoto className="m-auto" />
+      </label>
+      <p className=" text-gray-medium text-xl text-center mt-3">
+        Upload a clear picture
+      </p>
+    </div>
+  );
+
+  const uploadedImage = imageLoaded ? (
+    <img
+      alt="profile"
+      src={photo}
+      className="rounded-full w-32 h-32 m-auto mb-12"
+    />
+  ) : (
+    <Spinner centered={false} />
+  );
+
   return (
     <div className="h-screen px-4">
       <div className="w-full max-w-sm mt-6 m-auto">
@@ -155,36 +196,13 @@ const CompleteProfile = () => {
         />
       </div>
       <div className="my-8 w-56 m-auto">
-        {photo ? (
-          <img
-            alt="profile"
-            src={photo}
-            className="rounded-full w-24 h-24 m-auto mb-12"
-          />
-        ) : (
-          <>
-            <label
-              className="cursor-pointer"
-              htmlFor="photo"
-              aria-label="select profile picture"
-            >
-              <input
-                type="file"
-                id="photo"
-                disabled={uploading}
-                className="w-0 h-0 opacity-0"
-                onChange={handlePhotoUpload}
-              />
-              <SelectPhoto className="m-auto" />
-            </label>
-            <p className=" text-gray-medium text-xl text-center mt-3">
-              Upload a clear picture
-            </p>
-          </>
-        )}
+        {photo ? uploadedImage : imageInput}
       </div>
-      <Button disabled={uploading} onClick={handleProfileCompletion}>
-        {uploading ? <Spinner centered={false} /> : 'START KNOW ME'}
+      <Button
+        disabled={uploading || !imageLoaded}
+        onClick={handleProfileCompletion}
+      >
+        START KNOW ME
       </Button>
       {error && <p className="text-red-700 my-2 text-center">{error}</p>}
     </div>

@@ -6,6 +6,7 @@ import {
   selectCurrentUser,
   currentUserAdded,
 } from '../features/currentUserSlice';
+import { imageLoader } from '../utils';
 import { NavBar, Spinner, Button, TextInput, Popup } from '../Components';
 import { ReactComponent as Camera } from '../assets/camera.svg';
 import { ReactComponent as Email } from '../assets/email-dark.svg';
@@ -30,8 +31,15 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [editError, setEditError] = useState('');
   const [error, setError] = useState('');
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const dispatch = useDispatch();
+
+  useState(() => {
+    if (photo) {
+      imageLoader(photo, () => setImageLoaded(true));
+    }
+  }, [photo]);
 
   const handleNewPhoto = async (e) => {
     if (e.target.files) {
@@ -147,6 +155,8 @@ const Profile = () => {
       else setEditError('Something went wrong');
     }
   };
+
+  if (!imageLoaded) return <Spinner />;
 
   return (
     <div className="flex flex-col h-screen">
