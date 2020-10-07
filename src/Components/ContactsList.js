@@ -11,7 +11,7 @@ import Contact from './Contact';
 
 const ContactExcerpt = ({ contactId }) => {
   const history = useHistory();
-  const { displayName, photoURL, chatId } = useSelector((state) =>
+  const { displayName, photoURL } = useSelector((state) =>
     selectContactById(state, contactId)
   );
 
@@ -20,7 +20,7 @@ const ContactExcerpt = ({ contactId }) => {
       type="button"
       key={contactId}
       className="mt-4 flex items-center"
-      onClick={() => history.push(`/chats/${chatId}`)}
+      onClick={() => history.push(`/chats/${contactId}`)}
     >
       <Contact image={photoURL} />
       <p className="ml-2">{displayName}</p>
