@@ -27,9 +27,16 @@ exports.findUser = functions.https.onCall(async (data, context) => {
     try {
       const userRecord = await admin.auth().getUserByEmail(receiverEmail);
       const { uid, displayName, photoURL } = userRecord.toJSON();
-      if (uid) return { uid, displayName, photoURL };
 
-      return { result: 'not found' };
+      const userSnapshot = await admin
+        .database()
+        .ref(`users/${uid}`)
+        .once('value');
+      const userValue = userSnapshot.val();
+
+      if (!uid || !userValue) throw new Error('not found');
+
+      return { uid, displayName, photoURL, userValue };
     } catch (err) {
       return { result: 'not found' };
     }
