@@ -222,53 +222,58 @@ exports.connectUsersRandomly = functions.database
   .onCreate(async (snapshot, context) => {
     const { userId } = context.params;
 
-    const usersRef = snapshot.ref.parent;
+    const randomUsersRef = snapshot.ref.parent;
 
     // return users with status of waiting including the current user
-    const users = await usersRef
+    const users = await randomUsersRef
       .orderByValue()
       .equalTo('waiting')
       .once('value')
       .then((userSnapshot) => userSnapshot.val());
-    // delete the current user from the list
-    // no user wants to connect with him/her self
-    delete users[userId];
 
-    // taking the first user from the list
-    const [userToConnectWith] = Object.keys(users);
+    // filtering users so that a user can not connect him/her self
+    const [userToConnectWith] = Object.keys(users).filter(
+      (id) => id !== userId
+    );
 
     // check if there is a user to connect with
     if (userToConnectWith) {
-      const roomRef = await usersRef.parent.child('rooms').push();
-      const roomId = roomRef.key;
-      const contactsRef = admin.database().ref('users');
+      const roomRef = randomUsersRef.parent.child('rooms').push();
+      const user1Ref = randomUsersRef.root
+        .child('users')
+        .child(userToConnectWith)
+        .child('random');
+      const user2Ref = randomUsersRef.root
+        .child('users')
+        .child(userId)
+        .child('random');
 
-      await roomRef.set({
+      const roomId = roomRef.key;
+
+      const roomUsersInfo = {
         [userId]: 'in',
         [userToConnectWith]: 'in',
-      });
+      };
 
-      await usersRef.update({
+      const randomUsersInfo = {
         [userId]: 'connected',
-      });
-
-      await usersRef.update({
         [userToConnectWith]: 'connected',
-      });
+      };
 
-      await contactsRef
-        .child(userToConnectWith)
-        .child('random')
-        .set({
-          [roomId]: userId,
-        });
+      const user1RandomRoom = {
+        [roomId]: userId,
+      };
 
-      await contactsRef
-        .child(userId)
-        .child('random')
-        .set({
-          [roomId]: userToConnectWith,
-        });
+      const user2RandomRoom = {
+        [roomId]: userToConnectWith,
+      };
+
+      await Promise.all([
+        randomUsersRef.update(randomUsersInfo),
+        roomRef.set(roomUsersInfo),
+        user1Ref.set(user1RandomRoom),
+        user2Ref.set(user2RandomRoom),
+      ]);
     }
 
     return null;
