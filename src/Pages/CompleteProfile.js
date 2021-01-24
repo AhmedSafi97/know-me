@@ -78,6 +78,7 @@ const CompleteProfile = () => {
                     'api:NvNCnVm1VFglc7TRzWYPz5DwWSXFCJYg'
                   )}`;
                   const result = await fetch('https://api.tinify.com/shrink', {
+                    mode: 'no-cors',
                     headers: {
                       Authorization,
                     },
