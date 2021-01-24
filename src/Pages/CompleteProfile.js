@@ -72,9 +72,30 @@ const CompleteProfile = () => {
               .child(photoAddress)
               .child(photoObj.name)
               .getDownloadURL()
-              .then((url) => {
-                setPhoto(url);
-                setUploading(false);
+              .then(async (url) => {
+                try {
+                  const Authorization = `Basic ${btoa(
+                    'api:NvNCnVm1VFglc7TRzWYPz5DwWSXFCJYg'
+                  )}`;
+                  const result = await fetch('https://api.tinify.com/shrink', {
+                    headers: {
+                      Authorization,
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                      source: {
+                        url,
+                      },
+                    }),
+                  });
+                  console.log('THERE', result);
+                  const res = await result.json();
+                  console.log('HERE', res);
+                  setPhoto(url);
+                  setUploading(false);
+                } catch (err) {
+                  console.log('At Error', err);
+                }
               })
         );
       }
